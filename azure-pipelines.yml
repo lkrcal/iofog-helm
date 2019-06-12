@@ -40,7 +40,6 @@ jobs:
           inputs:
             connectionType: Kubernetes Service Connection
             kubernetesServiceEndpoint: 'gke_focal-freedom-236620_asia-southeast1_lkrcal-6809978de35e5bad'
-            namespace: $(kubernetesNamespace)
             command: delete
             arguments: '--purge $(helmReleaseName)'
 #        - displayName: 'Bootstrap required tools'
