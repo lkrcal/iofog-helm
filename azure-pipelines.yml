@@ -8,8 +8,8 @@ jobs:
       variables:
         commit: $(Build.SourceVersion)
         branch: $(Build.SourceBranch)
-        kubernetesNamespace: 'iofog-helm-ci-$(Build.BuildNumber)'
-        helmReleaseName: 'iofog-helm-ci-$(Build.BuildNumber)'
+        kubernetesNamespace: 'iofog-helm-ci-$(Build.BuildId)'
+        helmReleaseName: 'iofog-helm-ci-$(Build.BuildId)'
 
       pool:
         vmImage: 'Ubuntu-16.04'
