@@ -22,7 +22,7 @@ jobs:
             kubernetesServiceEndpoint: 'gke_focal-freedom-236620_asia-southeast1_lkrcal-6809978de35e5bad'
             namespace: $(kubernetesNamespace)
             command: init
-            upgradetiller: true
+            upgradetiller: false
             waitForExecution: true
             arguments: --client-only
         - task: HelmDeploy@0
