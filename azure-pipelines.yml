@@ -8,7 +8,9 @@ jobs:
       variables:
         commit: $(Build.SourceVersion)
         branch: $(Build.SourceBranch)
-        namespace: iofog-helm-$(Build.SourceVersion)
+        kubernetesNamespace: iofog-helm-ci-$(Build.SourceVersion)
+        helmReleaseName: iofog-helm-ci-$(Build.SourceVersion)
+        kubernetesConnection: 'gke_focal-freedom-236620_asia-southeast1_lkrcal-6809978de35e5bad'
 
       pool:
         vmImage: 'Ubuntu-16.04'
@@ -18,11 +20,30 @@ jobs:
           displayName: 'Helm init'
           inputs:
             connectionType: Kubernetes Service Connection
-            kubernetesServiceEndpoint: 'gke_focal-freedom-236620_asia-southeast1_lkrcal-6809978de35e5bad'
+            kubernetesServiceEndpoint: $(kubernetesConnection)
+            namespace: $(kubernetesNamespace)
             command: init
             upgradetiller: true
             waitForExecution: true
             arguments: --client-only
+        - task: HelmDeploy@0
+          displayName: 'Helm install ioFog'
+          inputs:
+            connectionType: Kubernetes Service Connection
+            kubernetesServiceEndpoint: $(kubernetesConnection)
+            namespace: $(kubernetesNamespace)
+            command: init
+            chartType: FilePath
+            chartPath: iofog
+            releaseName: $(helmReleaseName)
+        - task: HelmDeploy@0
+          displayName: 'Helm delete'
+          inputs:
+            connectionType: Kubernetes Service Connection
+            kubernetesServiceEndpoint: $(kubernetesConnection)
+            namespace: $(kubernetesNamespace)
+            command: delete
+            arguments: '--purge $(helmReleaseName)''
 #        - displayName: 'Bootstrap required tools'
 #          script: ./script/bootstrap.sh
 #        - displayName: 'Check Kubernetes Cluster'
