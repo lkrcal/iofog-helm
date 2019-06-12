@@ -8,9 +8,8 @@ jobs:
       variables:
         commit: $(Build.SourceVersion)
         branch: $(Build.SourceBranch)
-        kubernetesNamespace: iofog-helm-ci-$(Build.SourceVersion)
-        helmReleaseName: iofog-helm-ci-$(Build.SourceVersion)
-        kubernetesConnection: 'gke_focal-freedom-236620_asia-southeast1_lkrcal-6809978de35e5bad'
+        kubernetesNamespace: 'iofog-helm-ci-$(Build.SourceVersion)'
+        helmReleaseName: 'iofog-helm-ci-$(Build.SourceVersion)'
 
       pool:
         vmImage: 'Ubuntu-16.04'
@@ -20,7 +19,7 @@ jobs:
           displayName: 'Helm init'
           inputs:
             connectionType: Kubernetes Service Connection
-            kubernetesServiceEndpoint: $(kubernetesConnection)
+            kubernetesServiceEndpoint: 'gke_focal-freedom-236620_asia-southeast1_lkrcal-6809978de35e5bad'
             namespace: $(kubernetesNamespace)
             command: init
             upgradetiller: true
@@ -30,7 +29,7 @@ jobs:
           displayName: 'Helm install ioFog'
           inputs:
             connectionType: Kubernetes Service Connection
-            kubernetesServiceEndpoint: $(kubernetesConnection)
+            kubernetesServiceEndpoint: 'gke_focal-freedom-236620_asia-southeast1_lkrcal-6809978de35e5bad'
             namespace: $(kubernetesNamespace)
             command: init
             chartType: FilePath
@@ -40,7 +39,7 @@ jobs:
           displayName: 'Helm delete'
           inputs:
             connectionType: Kubernetes Service Connection
-            kubernetesServiceEndpoint: $(kubernetesConnection)
+            kubernetesServiceEndpoint: 'gke_focal-freedom-236620_asia-southeast1_lkrcal-6809978de35e5bad'
             namespace: $(kubernetesNamespace)
             command: delete
             arguments: '--purge $(helmReleaseName)'
