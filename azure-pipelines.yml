@@ -27,6 +27,7 @@ jobs:
             arguments: --client-only
         - task: Kubernetes@1
           displayName: 'Check custom resource definition exists'
+          continueOnError: true
           inputs:
             connectionType: Kubernetes Service Connection
             kubernetesServiceEndpoint: 'gke_focal-freedom-236620_asia-southeast1_lkrcal-6809978de35e5bad'
@@ -38,9 +39,9 @@ jobs:
             else
               echo '##vso[task.setvariable variable=CREATE_CUSTOM_RESOURCE]false'
             fi
-        - bash: env
         - task: HelmDeploy@0
           displayName: 'Helm install ioFog'
+          timeoutInMinutes: 10
           inputs:
             connectionType: Kubernetes Service Connection
             kubernetesServiceEndpoint: 'gke_focal-freedom-236620_asia-southeast1_lkrcal-6809978de35e5bad'
@@ -50,29 +51,24 @@ jobs:
             chartType: FilePath
             chartPath: iofog
             releaseName: $(helmReleaseName)
+        - task: Kubernetes@1
+          displayName: 'Print all resources created'
+          condition: always()
+          inputs:
+            connectionType: Kubernetes Service Connection
+            kubernetesServiceEndpoint: 'gke_focal-freedom-236620_asia-southeast1_lkrcal-6809978de35e5bad'
+            command: get
+            arguments: all -n $(kubernetesNamespace)
         - task: HelmDeploy@0
           displayName: 'Helm delete'
+          condition: always()
+          continueOnError: true
           inputs:
             connectionType: Kubernetes Service Connection
             kubernetesServiceEndpoint: 'gke_focal-freedom-236620_asia-southeast1_lkrcal-6809978de35e5bad'
             command: delete
             arguments: '--purge $(helmReleaseName)'
-#        - displayName: 'Bootstrap required tools'
-#          script: ./script/bootstrap.sh
-#        - displayName: 'Check Kubernetes Cluster'
-#          script: |
-#            export KUBECONFIG=
-#            gcloud container clusters list --filter=name=lkrcal-6809978de35e5bad --zone asia-southeast1
-#        - displayName: 'Configure Kubernetes cluster connection'
-#          script: |
-#            kubectl config view
-#            ACCESS_TOKEN=$(kubectl config view \
-#              -o jsonpath='{.users[?(@.name == "gke_focal-freedom-236620_asia-southeast1_lkrcal-6809978de35e5bad")].user.auth-provider.config.access-token}')
-#            echo "ACCESS_TOKEN: ${ACCESS_TOKEN}"
-#        - Bootstrap
-#        - Check connectivity to kubernetes environment
-#        - Check connectivity to agent
-#        - Install helm
+#        TODO:
 #        - Initialize agent
 #        - Run test-runner
 #        - Report test results
