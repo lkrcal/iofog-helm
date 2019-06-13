@@ -33,9 +33,7 @@ jobs:
             command: get
             arguments: crd iofogs.k8s.iofog.org
             KubectlOutput: 'KUBECTL_GET_CRD'
-        - bash: echo $KUBECTLOUTPUT
-        - bash: echo $MYVAR_KUBECTLOUTPUT
-        - bash: echo $(KUBECTLOUTPUT)
+        - bash: env
         - task: HelmDeploy@0
           displayName: 'Helm install ioFog'
           inputs:
