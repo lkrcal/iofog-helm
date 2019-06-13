@@ -25,6 +25,13 @@ jobs:
             upgradetiller: false
             waitForExecution: true
             arguments: --client-only
+        - task: Kubernetes@1
+          displayName: 'Check custom resource definition exists'
+          inputs:
+            connectionType: Kubernetes Service Connection
+            kubernetesServiceEndpoint: 'gke_focal-freedom-236620_asia-southeast1_lkrcal-6809978de35e5bad'
+            command: get
+              arguments: crd iofogs.k8s.iofog.org
         - task: HelmDeploy@0
           displayName: 'Helm install ioFog'
           inputs:
