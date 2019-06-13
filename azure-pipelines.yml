@@ -31,8 +31,13 @@ jobs:
             connectionType: Kubernetes Service Connection
             kubernetesServiceEndpoint: 'gke_focal-freedom-236620_asia-southeast1_lkrcal-6809978de35e5bad'
             command: get
-            arguments: crd iofogs.k8s.iofog.org
-            KubectlOutput: 'KUBECTL_GET_CRD'
+            arguments: crd iofogs.k8s.iofog.org -o jsonpath='{.metadata.uid}'
+        - bash: |
+            if [[ -z "${KUBERNETES_KUBECTLOUTPUT}"]]; then
+              echo '##vso[task.setvariable variable=CREATE_CUSTOM_RESOURCE]true'
+            else
+              echo '##vso[task.setvariable variable=CREATE_CUSTOM_RESOURCE]false'
+            fi
         - bash: env
         - task: HelmDeploy@0
           displayName: 'Helm install ioFog'
@@ -41,6 +46,7 @@ jobs:
             kubernetesServiceEndpoint: 'gke_focal-freedom-236620_asia-southeast1_lkrcal-6809978de35e5bad'
             namespace: $(kubernetesNamespace)
             command: install
+            arguments: --set createCustomResource=$(CREATE_CUSTOM_RESOURCE)
             chartType: FilePath
             chartPath: iofog
             releaseName: $(helmReleaseName)
