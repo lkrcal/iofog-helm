@@ -10,6 +10,8 @@ The following commands require an installation of `Helm` and `kubectl` executing
 * [Helm installation instructions](https://helm.sh/docs/using_helm/#installing-helm)
 * [kubectl installation instructions](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
 
+Note that on GKE, it is necessary to create a service account for Tiller before initializing helm. See [helm init instructions](https://helm.sh/docs/using_helm/#tiller-and-role-based-access-control) for more details.
+
 # Usage
 
 ## Install ioFog Stack
@@ -52,6 +54,8 @@ kubectl delete crd iofogs.k8s.iofog.org
 
 ## Testing ioFog stack
 
+### Credentials to ioFog Agent
+
 In order to test the ioFog stack, we will need access to a single ioFog agent. Note that this agent is external to the Kubernetes cluster, but its credentials need to be stored as a secret in the cluster.
 
 You need to create such secret manually, in the same namespace the Helm chart was deployed. This secret only needs to be created or updated when you want to use a different agent for testing purposes. It is not required in any way if you don't need to test the ioFog stack.
@@ -72,7 +76,23 @@ When the secret and the agent are available, upgrade your Helm release to refere
 helm upgrade iofog --namespace iofog --set createCustomResource=false --set test.credentials=agent-credentials iofog/iofog
 ```
 
-Then run the tests.
+### Register agent with the ioFog stack
+
+Now is the time to register the agent with the rest of the ioFog stack. For this purpose, use [iofogctl](https://github.com/eclipse-iofog/iofogctl).
+
+```bash
+iofogctl connect -n iofog iofog-test-controller \
+  -o $(kubectl -n iofog get svc controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}:{.spec.ports[0].port}') \
+  -e user@domain.com  -p '#Bugs4Fun' 
+
+iofogctl deploy agent -n iofog-test agent1 --user username --host 34.66.151.77 --key-file /home/username/.ssh/agent-key
+```
+
+Note that the arguments for agent deployment are the same as the credentials we provided to the secret.
+
+### Run tests
+
+Then run the tests using Helm.
 
 ```bash
 helm test iofog
